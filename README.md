@@ -10,6 +10,8 @@
 - macOS: `fetch_comments_mac`
 - Linux: `fetch_comments_arm64`
 
+If you get a  `permissions denied` error, you may call `sudo chmod +x fetch_comments`.
+
 ### 2. Create a `videos.txt`
 
 Create a `videos.txt` file with the YouTube video URLs separated by new line you want to fetch the comments from **in the same folder as the executable**.
