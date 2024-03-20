@@ -101,4 +101,4 @@ jobs:
         with:
           pattern: "dist/*"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-url: ${{ steps.release.outputs.release_upload_url }}
+          release-url: ${{ steps.release.outputs.upload_url }}
