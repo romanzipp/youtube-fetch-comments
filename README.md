@@ -31,6 +31,14 @@ If everything goes to plan, you should see a `comments.csv` file being created.
 
 ## Build
 
+### Development
+
+```shell
+go run .
+```
+
+### Production
+
 ```shell
 go mod download
 go build -o ./fetch_comments
