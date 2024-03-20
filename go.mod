@@ -1,4 +1,4 @@
-module github.com/romanzipp/zita_youtube
+module github.com/romanzipp/youtube-fetch-comments
 
 go 1.21
 
