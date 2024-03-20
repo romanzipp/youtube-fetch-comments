@@ -30,3 +30,55 @@ jobs:
 
       - name: Build
         run: go build -o ./fetch_comments -v .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: fetch_comments_arm64
+          path: ./fetch_comments
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          name: fetch_comments_window.exe
+          path: ./fetch_comments
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: fetch_comments_mac
+          path: ./fetch_comments
+
+  release:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - run: tree artifacts/
+
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Assets to Release
+        uses: csexton/release-asset-action@v2
+        with:
+          pattern: "artifacts/*"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ needs.release.outputs.release_upload_url }}
