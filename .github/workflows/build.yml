@@ -67,17 +67,18 @@ jobs:
       - run: tree artifacts/
 
       - name: Create Release
-        id: create_release
+        id: release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.ref }}
           name: v${{ github.ref_name }}
           draft: false
           prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Assets to Release
         uses: csexton/release-asset-action@v2
         with:
           pattern: "artifacts/*"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-url: ${{ needs.release.outputs.release_upload_url }}
+          release-url: ${{ steps.release.outputs.release_upload_url }}
