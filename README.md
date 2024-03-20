@@ -2,6 +2,8 @@
 
 ## Usage
 
+A YouTube API key is required. You can get one [here](https://console.developers.google.com/apis/credentials).
+
 ### 1. Download executable
 
 [Download the latest executable](https://github.com/romanzipp/youtube-fetch-comments/releases/latest) for your system.
@@ -33,7 +35,7 @@ You can/need to pass the following env vars:
 #### Windows (cmd)
 
 ```
-set YOUTUBE_API_KEY=... set MIN_LENGTH=10 fetch_comments.exe
+set YOUTUBE_API_KEY=... set MIN_LENGTH=10 fetch_comments_windows.exe
 ```
 
 #### Windows (PowerShell)
@@ -45,7 +47,8 @@ $env:YOUTUBE_API_KEY="..." $env:MIN_LENGTH="10" .\fetch_comments.exe
 #### Unix-based systems (macOS, Linux)
 
 ```
-YOUTUBE_API_KEY=... MIN_LENGTH=10 ./fetch_comments
+YOUTUBE_API_KEY=... MIN_LENGTH=10 ./fetch_comments_mac
+YOUTUBE_API_KEY=... MIN_LENGTH=10 ./fetch_comments_arm64
 ```
 
 ### 4. Output file
