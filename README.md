@@ -20,6 +20,19 @@ You can/need to pass the following env vars:
 - `MIN_LENGTH`: Minimum length of the comment to be fetched (default: 5)
 - `MAX_COMMENTS`: Maximum amount of the comment to be fetched for each video (default: 1000)
 
+#### Windows (cmd)
+
+```
+set YOUTUBE_API_KEY=... set MIN_LENGTH=10 fetch_comments.exe
+```
+
+#### Windows (PowerShell)
+
+```
+$env:YOUTUBE_API_KEY="..." $env:MIN_LENGTH="10" .\fetch_comments.exe
+```
+
+#### Unix-based systems (macOS, Linux)
 
 ```
 YOUTUBE_API_KEY=... MIN_LENGTH=10 ./fetch_comments
