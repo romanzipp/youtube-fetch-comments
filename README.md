@@ -2,9 +2,17 @@
 
 ## Usage
 
-### 1. Create a `videos.txt`
+### 1. Download executable
 
-Create a `videos.txt` file with the YouTube video URLs separated by new line you want to fetch the comments from.
+[Download the latest executable](https://github.com/romanzipp/youtube-fetch-comments/releases/latest) for your system.
+
+- Windows: `fetch_comments_windows.exe`
+- macOS: `fetch_comments_mac`
+- Linux: `fetch_comments_arm64`
+
+### 2. Create a `videos.txt`
+
+Create a `videos.txt` file with the YouTube video URLs separated by new line you want to fetch the comments from **in the same folder as the executable**.
 
 ```txt
 https://youtu.be/h5MJn_Yy7aA
@@ -12,7 +20,7 @@ https://www.youtube.com/watch?v=eglxpDucXpI
 ...
 ```
 
-### 2. Call the script
+### 3. Call the script
 
 You can/need to pass the following env vars:
 
@@ -38,7 +46,7 @@ $env:YOUTUBE_API_KEY="..." $env:MIN_LENGTH="10" .\fetch_comments.exe
 YOUTUBE_API_KEY=... MIN_LENGTH=10 ./fetch_comments
 ```
 
-### 3. Output file
+### 4. Output file
 
 If everything goes to plan, you should see a `comments.csv` file being created.
 
