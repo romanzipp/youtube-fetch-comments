@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         go: [ "1.21" ]
-        os: [ "ubuntu-latest", "windows-latest", "macos-latest" ]
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
     steps:
 
       - name: Set up Go
@@ -26,29 +26,44 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
-      - name: Build
-        run: go build -o ./fetch_comments -v .
+      # ubuntu-latest
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Build (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
+        run: go build -o ./fetch_comments_arm64 -v .
+
+      - name: Upload artifact (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
         with:
           name: fetch_comments_arm64
-          path: ./fetch_comments
+          path: ./fetch_comments_arm64
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        if: matrix.os == 'windows-latest'
-        with:
-          name: fetch_comments_window.exe
-          path: ./fetch_comments
+      # macos-latest
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Build (macOS)
         if: matrix.os == 'macos-latest'
+        run: go build -o ./fetch_comments -v .
+
+      - name: Upload artifact (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
         with:
           name: fetch_comments_mac
-          path: ./fetch_comments
+          path: ./fetch_comments_mac
+
+      # windows-latest
+
+      - name: Build (windows)
+        if: matrix.os == 'windows-latest'
+        run: go build -o ./fetch_comments_windows.exe -v .
+
+      - name: Upload artifact (windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: fetch_comments_windows.exe
+          path: ./fetch_comments_windows.exe
 
   release:
     name: Release
@@ -66,6 +81,11 @@ jobs:
 
       - run: tree artifacts/
 
+      - run: mkdir dist
+      - run: find artifacts/ -type f -print0 | xargs -0 mv -t dist/
+
+      - run: ls -lisah dist/
+
       - name: Create Release
         id: release
         uses: ncipollo/release-action@v1
@@ -79,6 +99,6 @@ jobs:
       - name: Upload Assets to Release
         uses: csexton/release-asset-action@v2
         with:
-          pattern: "artifacts/*"
+          pattern: "dist/*"
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-url: ${{ steps.release.outputs.release_upload_url }}
