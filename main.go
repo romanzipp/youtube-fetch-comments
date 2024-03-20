@@ -132,7 +132,7 @@ func main() {
 
 			if err != nil {
 				if strings.Contains(err.Error(), "too much requests") || strings.Contains(err.Error(), "quotaExceeded") || strings.Contains(err.Error(), "rateLimitExceeded") {
-					fmt.Println("[Comments] WARNING: too much requests, waiting for 10 seconds before retrying")
+					fmt.Println("[Comments] WARNING: too much requests, waiting for 10 seconds before retrying...")
 					time.Sleep(10 * time.Second)
 					continue
 				} else if strings.Contains(err.Error(), "commentsDisabled") {
@@ -183,7 +183,7 @@ func main() {
 
 				if err != nil {
 					if strings.Contains(err.Error(), "too much requests") || strings.Contains(err.Error(), "quotaExceeded") || strings.Contains(err.Error(), "rateLimitExceeded") {
-						fmt.Println("[Comment-Replies] WARNING: too much requests, waiting for 10 seconds before retrying")
+						fmt.Println("[Comment-Replies] WARNING: too much requests, waiting for 10 seconds before retrying...")
 						time.Sleep(10 * time.Second)
 						continue
 					}
