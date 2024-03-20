@@ -1,5 +1,10 @@
 # Fetch YouTube Comments
 
+- Available for macOS, Linux & Windows
+- Fetch all comments + comment replies for a given list of YouTube videos
+- Applies cooldown if rate limit reached
+- Outputs CSV file containing all comments
+
 ## Usage
 
 A YouTube API key is required. You can get one [here](https://console.developers.google.com/apis/credentials).
