@@ -43,7 +43,7 @@ jobs:
 
       - name: Build (macOS)
         if: matrix.os == 'macos-latest'
-        run: go build -o ./fetch_comments -v .
+        run: go build -o ./fetch_comments_mac -v .
 
       - name: Upload artifact (macOS)
         if: matrix.os == 'macos-latest'
