@@ -1,6 +1,6 @@
 module github.com/romanzipp/zita_youtube
 
-go 1.21.7
+go 1.21
 
 require (
 	cloud.google.com/go/compute v1.23.4 // indirect
