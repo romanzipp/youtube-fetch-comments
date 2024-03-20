@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"google.golang.org/api/option"
 )
@@ -97,81 +98,100 @@ func main() {
 		call := service.CommentThreads.List([]string{"snippet"}).VideoId(videoId).MaxResults(100)
 		count := 0
 
-		err = call.Pages(ctx, func(response *youtube.CommentThreadListResponse) error {
-			fmt.Println("[Comments] fetching comments", count)
+		for {
 
-			for _, item := range response.Items {
-				// skip short comments
-				if len(item.Snippet.TopLevelComment.Snippet.TextDisplay) < minLength {
-					continue
-				}
+			err = call.Pages(ctx, func(response *youtube.CommentThreadListResponse) error {
+				fmt.Println("[Comments] fetching comments", count)
 
-				// remember comments which have replies
-				if item.Snippet.TotalReplyCount > 0 {
-					info.CommentThreads = append(info.CommentThreads, item)
-				}
-
-				info.Comments = append(info.Comments, Comment{
-					Id:         item.Id,
-					AuthorName: item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
-					Text:       item.Snippet.TopLevelComment.Snippet.TextDisplay,
-				})
-			}
-
-			count += len(response.Items)
-			if count >= maxComments {
-				fmt.Println("[Comments] fetching comments - reached max items")
-				return fmt.Errorf("reached max items")
-			}
-
-			return nil
-		})
-
-		videoInfos = append(videoInfos, info)
-
-		if err != nil {
-			if strings.Contains(err.Error(), "commentsDisabled") {
-				fmt.Println("[Comments] WARNING: comments are disabled for this video")
-			} else if err.Error() != "reached max items" {
-				log.Fatalf("Error fetching comments: %v", err)
-			}
-		}
-	}
-
-	for _, info := range videoInfos {
-		for _, thread := range info.CommentThreads {
-			call := service.Comments.List([]string{"snippet"}).ParentId(thread.Snippet.TopLevelComment.Id).MaxResults(100)
-
-			err = call.Pages(ctx, func(response *youtube.CommentListResponse) error {
-				fmt.Println("[Comment-Replies] fetching reply comments for video", info.VideoId, "+ comment", thread.Snippet.TopLevelComment.Id)
-
-				// got replies for comment thread
 				for _, item := range response.Items {
 					// skip short comments
-					if len(item.Snippet.TextDisplay) < minLength {
+					if len(item.Snippet.TopLevelComment.Snippet.TextDisplay) < minLength {
 						continue
 					}
 
-					reply := Comment{
-						AuthorName: item.Snippet.AuthorDisplayName,
-						Text:       item.Snippet.TextDisplay,
-						IsReply:    true,
+					// remember comments which have replies
+					if item.Snippet.TotalReplyCount > 0 {
+						info.CommentThreads = append(info.CommentThreads, item)
 					}
 
-					// Find the parent comment and append the reply to its Replies field
-					for i := range info.Comments {
-						if info.Comments[i].Id == item.Snippet.ParentId {
-							info.Comments[i].Replies = append(info.Comments[i].Replies, reply)
-							break
-						}
-					}
+					info.Comments = append(info.Comments, Comment{
+						Id:         item.Id,
+						AuthorName: item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
+						Text:       item.Snippet.TopLevelComment.Snippet.TextDisplay,
+					})
+				}
+
+				count += len(response.Items)
+				if count >= maxComments {
+					fmt.Println("[Comments] fetching comments - reached max items")
+					return fmt.Errorf("reached max items")
 				}
 
 				return nil
 			})
 
 			if err != nil {
-				log.Fatalf("Error fetching reply comments: %v", err)
+				if strings.Contains(err.Error(), "too much requests") || strings.Contains(err.Error(), "quotaExceeded") || strings.Contains(err.Error(), "rateLimitExceeded") {
+					fmt.Println("[Comments] WARNING: too much requests, waiting for 10 seconds before retrying")
+					time.Sleep(10 * time.Second)
+					continue
+				} else if strings.Contains(err.Error(), "commentsDisabled") {
+					fmt.Println("[Comments] WARNING: comments are disabled for this video")
+				} else if err.Error() != "reached max items" {
+					log.Fatalf("Error fetching comments: %v", err)
+				}
+			}
+
+			break
+		}
+
+		videoInfos = append(videoInfos, info)
+	}
+
+	for _, info := range videoInfos {
+		for _, thread := range info.CommentThreads {
+			call := service.Comments.List([]string{"snippet"}).ParentId(thread.Snippet.TopLevelComment.Id).MaxResults(100)
+
+			for {
+				err = call.Pages(ctx, func(response *youtube.CommentListResponse) error {
+					fmt.Println("[Comment-Replies] fetching reply comments for video", info.VideoId, "+ comment", thread.Snippet.TopLevelComment.Id)
+
+					// got replies for comment thread
+					for _, item := range response.Items {
+						// skip short comments
+						if len(item.Snippet.TextDisplay) < minLength {
+							continue
+						}
+
+						reply := Comment{
+							AuthorName: item.Snippet.AuthorDisplayName,
+							Text:       item.Snippet.TextDisplay,
+							IsReply:    true,
+						}
+
+						// Find the parent comment and append the reply to its Replies field
+						for i := range info.Comments {
+							if info.Comments[i].Id == item.Snippet.ParentId {
+								info.Comments[i].Replies = append(info.Comments[i].Replies, reply)
+								break
+							}
+						}
+					}
+
+					return nil
+				})
+
+				if err != nil {
+					if strings.Contains(err.Error(), "too much requests") || strings.Contains(err.Error(), "quotaExceeded") || strings.Contains(err.Error(), "rateLimitExceeded") {
+						fmt.Println("[Comment-Replies] WARNING: too much requests, waiting for 10 seconds before retrying")
+						time.Sleep(10 * time.Second)
+						continue
+					}
+
+					log.Fatalf("Error fetching reply comments: %v", err)
+				}
+
+				break
 			}
 
 			info.CommentThreads = nil
