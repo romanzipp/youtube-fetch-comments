@@ -41,7 +41,7 @@ set YOUTUBE_API_KEY=... set MIN_LENGTH=10 fetch_comments_windows.exe
 #### Windows (PowerShell)
 
 ```
-$env:YOUTUBE_API_KEY="..." $env:MIN_LENGTH="10" .\fetch_comments.exe
+$env:YOUTUBE_API_KEY="..."; $env:MIN_LENGTH="10"; .\fetch_comments_windows.exe
 ```
 
 #### Unix-based systems (macOS, Linux)
