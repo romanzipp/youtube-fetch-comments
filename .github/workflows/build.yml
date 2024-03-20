@@ -47,12 +47,13 @@ jobs:
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest'
         with:
           name: fetch_comments_mac
           path: ./fetch_comments
 
   release:
+    name: Release
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:
