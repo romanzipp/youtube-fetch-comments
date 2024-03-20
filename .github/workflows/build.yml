@@ -90,15 +90,9 @@ jobs:
         id: release
         uses: ncipollo/release-action@v1
         with:
+          artifacts: "dist/*"
           tag: ${{ github.ref }}
           name: v${{ github.ref_name }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Assets to Release
-        uses: csexton/release-asset-action@v2
-        with:
-          pattern: "dist/*"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          release-url: ${{ steps.release.outputs.upload_url }}
