@@ -237,7 +237,7 @@ func main() {
 }
 
 func cleanCol(text string) string {
-	return strings.ReplaceAll(text, ";", ",")
+	return strings.ReplaceAll(strings.ReplaceAll(text, ";", ","), "\n", " ")
 }
 
 func getYoutubeID(urlStr string) (string, error) {
