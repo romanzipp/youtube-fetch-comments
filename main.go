@@ -231,7 +231,7 @@ func main() {
 	}
 
 	f, _ := os.Create("comments.csv")
-	t := transform.NewWriter(f, unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewEncoder())
+	t := transform.NewWriter(f, unicode.UTF8BOM.NewEncoder())
 	w := csv.NewWriter(t)
 	w.Comma = ';'
 
