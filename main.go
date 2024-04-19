@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/csv"
 	"fmt"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 	"google.golang.org/api/youtube/v3"
 	"log"
 	"net/url"
@@ -198,17 +201,20 @@ func main() {
 		}
 	}
 
-	lines := make([]string, 0)
-
-	lines = append(lines, "videoId;isReply;authorName;commentText")
+	records := [][]string{
+		{"videoId", "isReply", "authorName", "commentText"},
+	}
 
 	for _, info := range videoInfos {
 		for _, comment := range info.Comments {
-			root := "    "
+			root := "."
 			if len(comment.Replies) > 0 {
 				root = "┌───"
 			}
-			lines = append(lines, fmt.Sprintf("%s;%s;%s;%s", info.VideoId, root, padRight(cleanCol(comment.AuthorName), 30), cleanCol(comment.Text)))
+
+			records = append(records, []string{info.VideoId, root, cleanCol(comment.AuthorName), cleanCol(comment.Text)})
+
+			// lines = append(lines, fmt.Sprintf("%s;%s;%s;%s", info.VideoId, root, padRight(cleanCol(comment.AuthorName), 30), cleanCol(comment.Text)))
 
 			for replyIndex, replyComment := range comment.Replies {
 				angle := "├"
@@ -217,23 +223,23 @@ func main() {
 				} else {
 					angle = "├"
 				}
-				lines = append(lines, fmt.Sprintf("%s;%s%s;%s;%s", info.VideoId, angle, "── ", cleanCol(replyComment.AuthorName), cleanCol(replyComment.Text)))
+
+				records = append(records, []string{info.VideoId, fmt.Sprintf("%s%s", angle, "── "), cleanCol(replyComment.AuthorName), cleanCol(replyComment.Text)})
+				//lines = append(lines, fmt.Sprintf("%s;%s%s;%s;%s", info.VideoId, angle, "── ", cleanCol(replyComment.AuthorName), cleanCol(replyComment.Text)))
 			}
 		}
 	}
 
-	outFile, err := os.Create("comments.csv")
-	if err != nil {
-		log.Fatalf("failed to create file: %s", err)
-	}
-	defer outFile.Close()
+	f, _ := os.Create("comments.csv")
+	t := transform.NewWriter(f, unicode.UTF16(unicode.LittleEndian, unicode.UseBOM).NewEncoder())
+	w := csv.NewWriter(t)
+	w.Comma = ';'
 
-	for _, line := range lines {
-		_, err := fmt.Fprintln(outFile, line)
-		if err != nil {
-			log.Fatalf("failed to write to file: %s", err)
-		}
+	for _, record := range records {
+		w.Write(record)
 	}
+
+	w.Flush()
 }
 
 func cleanCol(text string) string {
